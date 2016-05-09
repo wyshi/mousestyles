@@ -337,3 +337,92 @@ def mcmc_simulation(mat_list, n_per_int):
             simu_result[index] = int(state_j)
     simu_result = np.array(simu_result, dtype=int)
     return simu_result
+
+
+def get_score(true_day, simulated_day, weight=[1, 10, 50, 1]):
+    r"""
+    Returns the evaluation score for the simulted day
+    that will be later used to choose the best time
+    interval for different strains. The input data
+    should be two numpy arrays and one list, the two arrays
+    are possibly with different lengths, one being the
+    activities for one particular day of one particular
+    mouse, the other array is our simulated day for this
+    mouse from the mcmc_simulation function. And the list
+    is the weight for different status. We should give different
+    rewards for making correct simulations on various status.
+    The output will be one number between 0 and max(weight),
+    indicating the similiary of the true day of a mouse and
+    a simulated day of the same mouse. We will use
+    this function to measure the performance of the
+    simulation and then choose the appropriate time
+    interval.
+
+    Parameters
+    ----------
+    true_day: numpy.array
+        a numpy.array containing the activities for one
+        particular mouse on a specific day
+    simulated_day: numpy.array
+        a numpy.array containing the simulated activities
+        for this particular mouse.
+    weight: list
+        a list with positive numbers showing the rewards
+        for making the right predictions of various status.
+
+    Returns
+    -------
+    score: float
+        a float from 0 to max(weight), indicating the similarity of
+        the simulated data with the actual value, and therefore,
+        the performance of the simulation, with max(weight) being the
+        most similar, and 0 being the least similar.
+
+    Examples
+    --------
+    >>> true_day_1 = np.zeros(13)
+    >>> simulated_day_1 = np.ones(13)
+    >>> score_1 = get_score(true_day_1, simulated_day_1)
+    >>> 0.0
+    >>> true_day_2 = np.ones(13)
+    >>> simulated_day_2 = np.ones(13)
+    >>> score_2 = get_score(true_day_2, simulated_day_2)
+    >>> 10.0
+
+    """
+    # check all the inputs
+    condition_true_day = (isinstance(true_day, (np.ndarray, np.generic)))
+    condition_simulated_day = (isinstance(simulated_day,
+                               (np.ndarray, np.generic)))
+    condition_weight = (isinstance(weight, list))
+
+    if not condition_true_day:
+        raise ValueError("true_day should be numpy array!")
+    if not condition_simulated_day:
+        raise ValueError("simulated_day should be numpy array!")
+    if not condition_weight:
+        raise ValueError("weight should be list!")
+
+    len_weight = len(weight)
+    if len_weight != 4:
+        raise ValueError("Length of weight should be 4!")
+
+    # check all the weights are positive
+    for w in weight:
+        if w <= 0:
+            raise ValueError("All the weights should be positive!")
+
+    # make sure these two arrays have the same length
+    len_true = len(true_day)
+    len_simulated = len(simulated_day)
+    if len_true > len_simulated:
+        raise ValueError("Length of simulated_day is smaller than true_day!")
+    simulated_same_length = simulated_day[:len_true]
+
+    score = 0
+    for i in np.arange(len_true):
+        if true_day[i] == simulated_same_length[i]:
+            status = true_day[i]
+            score += weight[int(status)]
+    score = score/len_true
+    return score

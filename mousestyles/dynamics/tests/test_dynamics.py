@@ -8,7 +8,7 @@ import pandas as pd
 from mousestyles.dynamics import create_time_matrix
 from mousestyles.dynamics import get_prob_matrix_list
 from mousestyles.dynamics import get_prob_matrix_small_interval
-from mousestyles.dynamics import mcmc_simulation
+from mousestyles.dynamics import mcmc_simulation, get_score
 
 
 def test_creat_time_matrix_input():
@@ -144,3 +144,49 @@ def test_mcmc_simulation():
     assert sum(example[10:]) == 5.
     assert example[10] == 1.
     assert example[11] == 0.
+
+
+def test_get_score_input():
+    # checking functions raise the correct errors for wrong input
+    # true_day is not numpy.array
+    with pytest.raises(ValueError) as excinfo:
+        get_score(true_day=0, simulated_day=np.zeros(13))
+    assert excinfo.value.args[0] == "true_day should be numpy array!"
+    # simulated_day is not numpy.array
+    with pytest.raises(ValueError) as excinfo:
+        get_score(true_day=np.zeros(13), simulated_day=0)
+    assert excinfo.value.args[0] == "simulated_day should be numpy array!"
+    # weight should be list
+    with pytest.raises(ValueError) as excinfo:
+        get_score(true_day=np.zeros(13), simulated_day=np.zeros(13),
+                  weight=0)
+    assert excinfo.value.args[0] == "weight should be list!"
+    # length of weight should be exactly 4
+    with pytest.raises(ValueError) as excinfo:
+        get_score(true_day=np.zeros(13), simulated_day=np.zeros(13),
+                  weight=[0])
+    assert excinfo.value.args[0] == "Length of weight should be 4!"
+    # check lengths of true_day and simulated_day
+    with pytest.raises(ValueError) as excinfo:
+        get_score(true_day=np.zeros(13), simulated_day=np.zeros(5))
+    error_message = "Length of simulated_day is smaller than true_day!"
+    assert excinfo.value.args[0] == error_message
+    # check all the weights are positive
+    with pytest.raises(ValueError) as excinfo:
+        get_score(true_day=np.zeros(13), simulated_day=np.zeros(13),
+                  weight=[-1, 2, 3, 4])
+    assert excinfo.value.args[0] == "All the weights should be positive!"
+
+
+def test_get_score():
+    # Checking functions output the correct score
+    true_day_1 = np.zeros(13)
+    simulated_day_1 = np.ones(13)
+    score_1 = get_score(true_day_1, simulated_day_1)
+
+    true_day_2 = np.ones(13)
+    simulated_day_2 = np.ones(13)
+    score_2 = get_score(true_day_2, simulated_day_2)
+
+    assert score_1 == 0.0
+    assert score_2 == 10.0
