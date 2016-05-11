@@ -151,31 +151,31 @@ def test_get_score_input():
     # true_day is not numpy.array
     with pytest.raises(ValueError) as excinfo:
         get_score(true_day=0, simulated_day=np.zeros(13))
-    assert excinfo.value.args[0] == "true_day should be numpy array!"
+    assert excinfo.value.args[0] == "true_day should be numpy array"
     # simulated_day is not numpy.array
     with pytest.raises(ValueError) as excinfo:
         get_score(true_day=np.zeros(13), simulated_day=0)
-    assert excinfo.value.args[0] == "simulated_day should be numpy array!"
+    assert excinfo.value.args[0] == "simulated_day should be numpy array"
     # weight should be list
     with pytest.raises(ValueError) as excinfo:
         get_score(true_day=np.zeros(13), simulated_day=np.zeros(13),
                   weight=0)
-    assert excinfo.value.args[0] == "weight should be list!"
+    assert excinfo.value.args[0] == "weight should be list"
     # length of weight should be exactly 4
     with pytest.raises(ValueError) as excinfo:
         get_score(true_day=np.zeros(13), simulated_day=np.zeros(13),
                   weight=[0])
-    assert excinfo.value.args[0] == "Length of weight should be 4!"
+    assert excinfo.value.args[0] == "Length of weight should be 4"
     # check lengths of true_day and simulated_day
     with pytest.raises(ValueError) as excinfo:
         get_score(true_day=np.zeros(13), simulated_day=np.zeros(5))
-    error_message = "Length of simulated_day is smaller than true_day!"
+    error_message = "Length of simulated_day is smaller than true_day"
     assert excinfo.value.args[0] == error_message
     # check all the weights are positive
     with pytest.raises(ValueError) as excinfo:
         get_score(true_day=np.zeros(13), simulated_day=np.zeros(13),
                   weight=[-1, 2, 3, 4])
-    assert excinfo.value.args[0] == "All the weights should be positive!"
+    assert excinfo.value.args[0] == "All the weights should be positive"
 
 
 def test_get_score():

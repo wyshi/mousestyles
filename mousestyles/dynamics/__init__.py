@@ -351,6 +351,11 @@ def get_score(true_day, simulated_day, weight=[1, 10, 50, 1]):
     mouse from the mcmc_simulation function. And the list
     is the weight for different status. We should give different
     rewards for making correct simulations on various status.
+    For example, the average mouse day have 21200 timestamps.
+    10000 of them are IS, 1000 are EAT, 200 are drink, and the
+    left 10000 are OTHERS. So we should weigh more on drink and
+    eat, their ratio is 10000:1000:200:10000 = 1:0.1:0.02:0.1.
+    So I took the inverse of them to be 1:10:50:1.
     The output will be one number between 0 and max(weight),
     indicating the similiary of the true day of a mouse and
     a simulated day of the same mouse. We will use
@@ -382,11 +387,11 @@ def get_score(true_day, simulated_day, weight=[1, 10, 50, 1]):
     --------
     >>> true_day_1 = np.zeros(13)
     >>> simulated_day_1 = np.ones(13)
-    >>> score_1 = get_score(true_day_1, simulated_day_1)
+    >>> get_score(true_day_1, simulated_day_1)
     >>> 0.0
     >>> true_day_2 = np.ones(13)
     >>> simulated_day_2 = np.ones(13)
-    >>> score_2 = get_score(true_day_2, simulated_day_2)
+    >>> get_score(true_day_2, simulated_day_2)
     >>> 10.0
 
     """
@@ -397,26 +402,26 @@ def get_score(true_day, simulated_day, weight=[1, 10, 50, 1]):
     condition_weight = (isinstance(weight, list))
 
     if not condition_true_day:
-        raise ValueError("true_day should be numpy array!")
+        raise ValueError("true_day should be numpy array")
     if not condition_simulated_day:
-        raise ValueError("simulated_day should be numpy array!")
+        raise ValueError("simulated_day should be numpy array")
     if not condition_weight:
-        raise ValueError("weight should be list!")
+        raise ValueError("weight should be list")
 
     len_weight = len(weight)
     if len_weight != 4:
-        raise ValueError("Length of weight should be 4!")
+        raise ValueError("Length of weight should be 4")
 
     # check all the weights are positive
     for w in weight:
         if w <= 0:
-            raise ValueError("All the weights should be positive!")
+            raise ValueError("All the weights should be positive")
 
     # make sure these two arrays have the same length
     len_true = len(true_day)
     len_simulated = len(simulated_day)
     if len_true > len_simulated:
-        raise ValueError("Length of simulated_day is smaller than true_day!")
+        raise ValueError("Length of simulated_day is smaller than true_day")
     simulated_same_length = simulated_day[:len_true]
 
     score = 0
